@@ -1,0 +1,16 @@
+opencv-python
+deepface
+openai
+flask
+flask_wtf
+chroma
+langchain
+numpy
+pandas
+scikit-learn==1.2.2
+textblob
+transformers
+flask-sqlalchemy
+# dlib
+google.generativeai
+python-dotenv
