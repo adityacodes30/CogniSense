@@ -12,6 +12,8 @@ import numpy as np
 import cv2
 from PIL import Image
 from io import BytesIO
+import subprocess
+cmd = 'python3 ./grow_dashboard/cv/main.py'
 
 
 app = Flask(__name__)
@@ -27,6 +29,15 @@ def home():
 def about():
     return render_template('about.html')
 
+@app.route('/openScript',  methods=['GET'])
+def openScript():
+    print('Opening Script')
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    out, err = p.communicate() 
+    result = out.split('\n')
+    for lin in result:
+        if not lin.startswith('#'):
+            print(lin)
 
 @app.route('/test', methods=['GET', 'POST'])
 def autism_form():
@@ -176,40 +187,42 @@ def login():
 count = 0
 # websocket wala code 
 
-@socketio.on('connect')
-def handle_connect():
-    print('Client connected')
+# @socketio.on('connect')
+# def handle_connect():
+#     print('Client connected')
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Client disconnected')
+# @socketio.on('disconnect')
+# def handle_disconnect():
+#     print('Client disconnected')
 
-@socketio.on('video_frame')
-def handle_video_frame(frame):
-    # print('\n \n ', frame , '\n')
-    # im_bytes = base64.b64decode(frame)
-    # im_arr = np.frombuffer(im_bytes, dtype=np.uint8)  # im_arr is one-dim Numpy array
-    # nparr = np.fromstring(frame, np.uint8)
-    # img = cv2.imdecode(nparr, flags=cv2.IMREAD_COLOR)
-    frame = frame.split(',')[1]
-    image_data = base64.b64decode(frame)
-    image = Image.open(BytesIO(image_data))
-    # img = cv2.imageDecoder(frame, cv2.IMREAD_COLOR)
-    # print('\n \n ', img.dtype , '\n')
-    # print('\n \n ', image , '\n')
-    image_np = np.array(image)
-    grayFrame = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
-    _, im_arr = cv2.imencode('.jpg', grayFrame)  # im_arr: image in Numpy one-dim array format.
-    im_bytes = im_arr.tobytes()
-    im_b64 = base64.b64encode(im_bytes)
-    #some procesiing 
-    print('\n \n ', im_b64 , '\n')
-    base64_string = im_b64.decode('utf-8')  # Convert bytes to string
+# @socketio.on('video_frame')
+# def handle_video_frame(frame):
+#     # print('\n \n ', frame , '\n')
+#     # im_bytes = base64.b64decode(frame)
+#     # im_arr = np.frombuffer(im_bytes, dtype=np.uint8)  # im_arr is one-dim Numpy array
+#     # nparr = np.fromstring(frame, np.uint8)
+#     # img = cv2.imdecode(nparr, flags=cv2.IMREAD_COLOR)
+#     frame = frame.split(',')[1]
+#     image_data = base64.b64decode(frame)
+#     image = Image.open(BytesIO(image_data))
+#     # img = cv2.imageDecoder(frame, cv2.IMREAD_COLOR)
+#     # print('\n \n ', img.dtype , '\n')
+#     # print('\n \n ', image , '\n')
+#     image_np = np.array(image)
+#     grayFrame = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
+#     new = predict(image_np)
+#     # _, im_arr = cv2.imencode('.jpg', grayFrame)  # im_arr: image in Numpy one-dim array format.
+#     _, im_arr = cv2.imencode('.jpg', grayFrame)
+#     im_bytes = im_arr.tobytes()
+#     im_b64 = base64.b64encode(im_bytes)
+#     #some procesiing 
+#     # print('\n \n ', im_b64 , '\n')
+#     base64_string = im_b64.decode('utf-8')  # Convert bytes to string
 
-# Prepend with data URL scheme information
-    img_str = "data:image/jpeg;base64," + base64_string
+# # Prepend with data URL scheme information
+#     img_str = "data:image/jpeg;base64," + base64_string
 
-    emit('processed' , img_str)
+#     emit('processed' , img_str)
  
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000)
